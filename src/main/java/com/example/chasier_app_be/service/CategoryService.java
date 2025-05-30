@@ -44,10 +44,15 @@ public class CategoryService {
     }
 
     public List<CategoryDTO> getCategoryPaginate(int offset, int limit, String search) {
+        if (search == null || search.isBlank()) {
+            search = "";
+        }
         String regexPattern = ".*" + Pattern.quote(search) + ".*";
         Criteria criteria = new Criteria().andOperator(
                 Criteria.where("isActive").is(true),
-                Criteria.where("name").regex(regexPattern, "i"));
+                new Criteria().orOperator(
+                        Criteria.where("name").regex(regexPattern, "i"),
+                        Criteria.where("id").regex(regexPattern, "i")));
 
         Query query = new Query(criteria)
                 .skip(offset)
