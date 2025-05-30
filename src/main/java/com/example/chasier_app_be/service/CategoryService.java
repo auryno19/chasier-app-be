@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -42,9 +43,13 @@ public class CategoryService {
         return categories.stream().map(this::convertToDTO).toList();
     }
 
-    public List<CategoryDTO> getCategoryPaginate(int offset, int limit) {
-        Query query = new Query()
-                .addCriteria(Criteria.where("isActive").is(true))
+    public List<CategoryDTO> getCategoryPaginate(int offset, int limit, String search) {
+        String regexPattern = ".*" + Pattern.quote(search) + ".*";
+        Criteria criteria = new Criteria().andOperator(
+                Criteria.where("isActive").is(true),
+                Criteria.where("name").regex(regexPattern, "i"));
+
+        Query query = new Query(criteria)
                 .skip(offset)
                 .limit(limit)
                 .with(Sort.by(Sort.Direction.ASC, "name"));

@@ -51,12 +51,13 @@ public class ApiCategoryController {
     @GetMapping("/paginate")
     public ResponseEntity<ApiResponse<Object>> getCategoryPaginate(
             @RequestParam(defaultValue = "1", name = "page") int page,
-            @RequestParam(defaultValue = "5", name = "per_page") int per_page) {
+            @RequestParam(defaultValue = "5", name = "per_page") int per_page,
+            @RequestParam(defaultValue = "", name = "search") String search) {
         try {
             int total = (int) this.categoryService.countCategory();
             int total_pages = total % per_page == 0 ? total / per_page : (total / per_page) + 1;
             int offset = (page - 1) * per_page;
-            List<CategoryDTO> categories = this.categoryService.getCategoryPaginate(offset, per_page);
+            List<CategoryDTO> categories = this.categoryService.getCategoryPaginate(offset, per_page, search);
             Map<String, Object> response = new HashMap<>();
             response.put("page", page);
             response.put("per_page", per_page);
