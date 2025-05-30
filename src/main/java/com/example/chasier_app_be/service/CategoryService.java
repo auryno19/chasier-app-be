@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,7 @@ public class CategoryService {
 
     public List<CategoryDTO> getCategoryPaginate(int offset, int limit) {
         Query query = new Query()
+                .addCriteria(Criteria.where("isActive").is(true))
                 .skip(offset)
                 .limit(limit)
                 .with(Sort.by(Sort.Direction.ASC, "name"));
@@ -57,7 +59,8 @@ public class CategoryService {
     }
 
     public long countCategory() {
-        return this.categoryRepository.count();
+        Query query = new Query(Criteria.where("isActive").is(true));
+        return mongoTemplate.count(query, Category.class);
     }
 
     public CategoryDTO getById(String id) {
