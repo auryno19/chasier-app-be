@@ -4,10 +4,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
@@ -55,8 +57,15 @@ public class ProductService {
         return products.stream().map(this::convertToDTo).toList();
     }
 
-    public List<ProductDTO> getProductPaginate(int offset, int limit) {
-        Query query = new Query()
+    public List<ProductDTO> getProductPaginate(int offset, int limit, String search) {
+        String regexPattern = ".*" + Pattern.quote(search) + ".*";
+
+        Criteria criteria = new Criteria().andOperator(
+                Criteria.where("isActive").is(true),
+                new Criteria().orOperator(
+                        Criteria.where("name").regex(regexPattern, "i"),
+                        Criteria.where("id").regex(regexPattern, "i")));
+        Query query = new Query(criteria)
                 .skip(offset)
                 .limit(limit)
                 .with(Sort.by(Sort.Direction.ASC, "name"));
@@ -70,8 +79,12 @@ public class ProductService {
         return products;
     }
 
-    public long countProduct() {
-        return this.productRepository.count();
+    public long countProduct(String search) {
+        String regexPattern = ".*" + Pattern.quote(search) + ".*";
+        Query query = new Query(Criteria.where("isActive").is(true).orOperator(
+                Criteria.where("name").regex(regexPattern, "i"),
+                Criteria.where("id").regex(regexPattern, "i")));
+        return mongoTemplate.count(query, Product.class);
     }
 
     public ProductDTO getById(String id) {

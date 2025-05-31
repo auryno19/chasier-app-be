@@ -53,12 +53,13 @@ public class ApiProductController {
     @GetMapping("/paginate")
     public ResponseEntity<ApiResponse<Object>> getProductPaginate(
             @RequestParam(defaultValue = "1", name = "page") int page,
-            @RequestParam(defaultValue = "5", name = "per_page") int per_page) {
+            @RequestParam(defaultValue = "5", name = "per_page") int per_page,
+            @RequestParam(defaultValue = "", name = "search") String search) {
         try {
-            int total = (int) this.productService.countProduct();
+            int total = (int) this.productService.countProduct(search);
             int total_pages = total % per_page == 0 ? total / per_page : (total / per_page) + 1;
             int offset = (page - 1) * per_page;
-            List<ProductDTO> products = this.productService.getProductPaginate(offset, per_page);
+            List<ProductDTO> products = this.productService.getProductPaginate(offset, per_page, search);
             Map<String, Object> response = new HashMap<>();
             response.put("page", page);
             response.put("per_page", per_page);
