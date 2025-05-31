@@ -68,8 +68,11 @@ public class CategoryService {
         return categories;
     }
 
-    public long countCategory() {
-        Query query = new Query(Criteria.where("isActive").is(true));
+    public long countCategory(String search) {
+        String regexPattern = ".*" + Pattern.quote(search) + ".*";
+        Query query = new Query(Criteria.where("isActive").is(true).orOperator(
+                Criteria.where("name").regex(regexPattern, "i"),
+                Criteria.where("id").regex(regexPattern, "i")));
         return mongoTemplate.count(query, Category.class);
     }
 
