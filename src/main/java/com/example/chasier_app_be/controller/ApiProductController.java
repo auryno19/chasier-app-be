@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.chasier_app_be.dto.ProductDTO;
-import com.example.chasier_app_be.model.Product;
 import com.example.chasier_app_be.service.ProductService;
 import com.example.chasier_app_be.util.ApiResponse;
 import com.example.chasier_app_be.util.NotFoundException;
@@ -89,9 +88,9 @@ public class ApiProductController {
     }
 
     @PostMapping("add")
-    public ResponseEntity<ApiResponse<Object>> addProduct(@Valid @RequestBody Product product) {
+    public ResponseEntity<ApiResponse<Object>> addProduct(@Valid @RequestBody ProductDTO productDTO) {
         try {
-            this.productService.addProduct(product);
+            this.productService.addProduct(productDTO);
             return ResponseUtil.generateSuccessResponse("Add Data Success", null, HttpStatus.CREATED);
         } catch (ValidationException e) {
             return ResponseUtil.generateErrorResponse("Validation error", e.getErrors(), HttpStatus.CONFLICT);
@@ -102,9 +101,10 @@ public class ApiProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Object>> updateProduct(@PathVariable String id, @RequestBody Product product) {
+    public ResponseEntity<ApiResponse<Object>> updateProduct(@PathVariable String id,
+            @RequestBody ProductDTO productDTO) {
         try {
-            this.productService.updateProduct(id, product);
+            this.productService.updateProduct(id, productDTO);
             return ResponseUtil.generateSuccessResponse("Update Data Success", null, HttpStatus.OK);
         } catch (ValidationException e) {
             return ResponseUtil.generateErrorResponse("Validation error", e.getErrors(), HttpStatus.CONFLICT);

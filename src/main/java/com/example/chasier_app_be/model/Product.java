@@ -23,8 +23,15 @@ public class Product {
     @NotNull(message = "Name is required")
     @NotBlank(message = "Name is required")
     private String name;
+
+    @NotNull(message = "Price is required")
     private Double price;
+
+    @NotNull(message = "Stock is required")
     private Integer stock;
+
+    @NotNull(message = "Category is required")
+    @NotBlank(message = "Category is required")
     private String categoryId;
     private String slug;
     private Boolean isActive = true;

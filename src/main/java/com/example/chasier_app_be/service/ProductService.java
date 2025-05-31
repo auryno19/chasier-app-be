@@ -103,24 +103,40 @@ public class ProductService {
         return products.stream().map(this::convertToDTo).toList().get(0);
     }
 
-    public void addProduct(Product product) {
+    public void addProduct(ProductDTO productDTO) {
         Map<String, String> errors = new HashMap<>();
-        List<Product> existingProducts = this.productRepository.findName(product.getName());
+        List<Product> existingProducts = this.productRepository.findName(productDTO.getName());
+
+        String categoryId = this.categoryRepository.getIdByName(productDTO.getCategory())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
         if (!existingProducts.isEmpty()) {
             errors.put("name", "Product name already exists.");
+        }
+        if (productDTO.getPrice() <= 0) {
+            errors.put("price", "Price must be greater than zero.");
+        }
+        if (productDTO.getStock() < 0) {
+            errors.put("stock", "Stock cannot be negative.");
         }
         if (!errors.isEmpty()) {
             throw new ValidationException("Validation error", errors);
         }
+        Product product = new Product();
+        product.setName(productDTO.getName());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setCategoryId(categoryId);
         product.setSlug(convertToSlug(product.getName()));
         product.setCreatedAt(new Date());
         this.productRepository.save(product);
     }
 
-    public void updateProduct(String id, Product product) {
+    public void updateProduct(String id, ProductDTO productDTO) {
         Product existingProduct = this.productRepository.findId(id).orElse(null);
         Map<String, String> errors = new HashMap<>();
-        List<Product> existingProductName = this.productRepository.findExistingName(product.getName(), id);
+        List<Product> existingProductName = this.productRepository.findExistingName(productDTO.getName(), id);
+        String categoryId = this.categoryRepository.getIdByName(productDTO.getCategory())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
         if (!existingProductName.isEmpty()) {
             errors.put("name", "Product name already exists.");
         }
@@ -129,10 +145,11 @@ public class ProductService {
         }
         if (existingProduct != null) {
 
-            existingProduct.setName(product.getName());
-            existingProduct.setPrice(product.getPrice());
-            existingProduct.setCategoryId(product.getCategoryId());
-            existingProduct.setSlug(convertToSlug(product.getName()));
+            existingProduct.setName(productDTO.getName());
+            existingProduct.setPrice(productDTO.getPrice());
+            existingProduct.setStock(productDTO.getStock());
+            existingProduct.setCategoryId(categoryId);
+            existingProduct.setSlug(convertToSlug(productDTO.getName()));
             existingProduct.setUpdatedAt(new Date());
             this.productRepository.save(existingProduct);
         } else {
