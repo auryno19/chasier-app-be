@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import com.example.chasier_app_be.dto.IdOnly;
 import com.example.chasier_app_be.model.Category;
 
 public interface CategoryRepository extends MongoRepository<Category, String> {
@@ -14,6 +15,9 @@ public interface CategoryRepository extends MongoRepository<Category, String> {
 
     @Query("{'_id': ?0, 'isActive': true}")
     Optional<Category> findId(String id);
+
+    @Query(value = "{'name': ?0, 'isActive': true}", fields = "{'_id': 1}")
+    Optional<IdOnly> getIdByName(String name);
 
     @Query(value = "{'_id': ?0, 'isActive': true}", fields = "{'name': 1, '_id': 0}")
     Optional<String> getNameById(String id);

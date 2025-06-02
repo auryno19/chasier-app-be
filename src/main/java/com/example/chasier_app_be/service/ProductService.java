@@ -108,7 +108,9 @@ public class ProductService {
         List<Product> existingProducts = this.productRepository.findName(productDTO.getName());
 
         String categoryId = this.categoryRepository.getIdByName(productDTO.getCategory())
+                .map(idOnly -> idOnly.getId().toString())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
+        System.out.println("cek : " + categoryId);
         if (!existingProducts.isEmpty()) {
             errors.put("name", "Product name already exists.");
         }
@@ -136,6 +138,7 @@ public class ProductService {
         Map<String, String> errors = new HashMap<>();
         List<Product> existingProductName = this.productRepository.findExistingName(productDTO.getName(), id);
         String categoryId = this.categoryRepository.getIdByName(productDTO.getCategory())
+                .map(idOnly -> idOnly.getId().toString())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         if (!existingProductName.isEmpty()) {
             errors.put("name", "Product name already exists.");
